@@ -1,6 +1,7 @@
 import axios from 'axios'
-import React, { useState } from 'react'
-import { backendUrl } from '../App'
+import { useState } from 'react'
+import PropTypes from 'prop-types'
+import { backendUrl } from '../constants'
 import { toast } from 'react-toastify'
 
 const Login = ({setToken}) => {
@@ -42,6 +43,10 @@ const Login = ({setToken}) => {
         </div>
     </div>
   )
+}
+
+Login.propTypes = {
+  setToken: PropTypes.func.isRequired,
 }
 
 export default Login

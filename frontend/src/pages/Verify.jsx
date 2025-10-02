@@ -1,20 +1,18 @@
-import React from 'react'
-import { useContext } from 'react'
+import { useEffect, useContext, useCallback } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { useSearchParams } from 'react-router-dom'
-import { useEffect } from 'react'
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify'
 import axios from 'axios'
 
 const Verify = () => {
 
     const { navigate, token, setCartItems, backendUrl } = useContext(ShopContext)
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
     
     const success = searchParams.get('success')
     const orderId = searchParams.get('orderId')
 
-    const verifyPayment = async () => {
+    const verifyPayment = useCallback(async () => {
         try {
 
             if (!token) {
@@ -34,11 +32,11 @@ const Verify = () => {
             console.log(error)
             toast.error(error.message)
         }
-    }
+    }, [token, backendUrl, success, orderId, setCartItems, navigate])
 
     useEffect(() => {
         verifyPayment()
-    }, [token])
+    }, [token, verifyPayment])
 
     return (
         <div>

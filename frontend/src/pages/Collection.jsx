@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, useCallback } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { assets } from '../assets/assets';
 import Title from '../components/Title';
@@ -34,7 +34,7 @@ const Collection = () => {
     }
   }
 
-  const applyFilter = () => {
+  const applyFilter = useCallback(() => {
 
     let productsCopy = products.slice();
 
@@ -52,9 +52,9 @@ const Collection = () => {
 
     setFilterProducts(productsCopy)
 
-  }
+  }, [products, showSearch, search, category, subCategory])
 
-  const sortProduct = () => {
+  const sortProduct = useCallback(() => {
 
     let fpCopy = filterProducts.slice();
 
@@ -72,15 +72,15 @@ const Collection = () => {
         break;
     }
 
-  }
+  }, [filterProducts, sortType, applyFilter])
 
   useEffect(()=>{
       applyFilter();
-  },[category,subCategory,search,showSearch,products])
+  },[category,subCategory,search,showSearch,products, applyFilter])
 
   useEffect(()=>{
     sortProduct();
-  },[sortType])
+  },[sortType, sortProduct])
 
   return (
     <div className='flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t'>

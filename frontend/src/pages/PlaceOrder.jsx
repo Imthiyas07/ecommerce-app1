@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -10,6 +10,12 @@ const PlaceOrder = () => {
 
     const [method, setMethod] = useState('cod');
     const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login')
+        }
+    }, [token, navigate])
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -58,8 +64,27 @@ const PlaceOrder = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault()
-        try {
 
+        // Validate products are loaded
+        if (products.length === 0) {
+            toast.error('Products are still loading. Please wait and try again.')
+            return
+        }
+
+        // Validate cart is not empty
+        if (Object.keys(cartItems).length === 0) {
+            toast.error('Your cart is empty')
+            return
+        }
+
+        // Validate form data
+        if (!formData.firstName || !formData.lastName || !formData.email || !formData.street ||
+            !formData.city || !formData.zipcode || !formData.country || !formData.phone) {
+            toast.error('Please fill in all required fields')
+            return
+        }
+
+        try {
             let orderItems = []
 
             for (const items in cartItems) {
@@ -75,53 +100,82 @@ const PlaceOrder = () => {
                 }
             }
 
+            if (orderItems.length === 0) {
+                toast.error('No valid items in cart')
+                return
+            }
+
             let orderData = {
                 address: formData,
                 items: orderItems,
                 amount: getCartAmount() + delivery_fee
             }
-            
+
+            console.log('Submitting order:', orderData)
 
             switch (method) {
-
-                // API Calls for COD
-                case 'cod':
-                    const response = await axios.post(backendUrl + '/api/order/place',orderData,{headers:{token}})
+                case 'cod': {
+                    const response = await axios.post(backendUrl + '/api/order/place', orderData, {
+                        headers: { token },
+                        timeout: 30000 // 30 second timeout
+                    })
+                    console.log('COD response:', response.data)
                     if (response.data.success) {
                         setCartItems({})
+                        toast.success('Order placed successfully!')
                         navigate('/orders')
                     } else {
-                        toast.error(response.data.message)
+                        toast.error(response.data.message || 'Failed to place order')
                     }
                     break;
+                }
 
-                case 'stripe':
-                    const responseStripe = await axios.post(backendUrl + '/api/order/stripe',orderData,{headers:{token}})
+                case 'stripe': {
+                    const responseStripe = await axios.post(backendUrl + '/api/order/stripe', orderData, {
+                        headers: { token },
+                        timeout: 30000
+                    })
+                    console.log('Stripe response:', responseStripe.data)
                     if (responseStripe.data.success) {
-                        const {session_url} = responseStripe.data
+                        const { session_url } = responseStripe.data
                         window.location.replace(session_url)
                     } else {
-                        toast.error(responseStripe.data.message)
+                        toast.error(responseStripe.data.message || 'Failed to create payment session')
                     }
                     break;
+                }
 
                 case 'razorpay':
-
-                    const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, {headers:{token}})
+                case 'gpay': {
+                    const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, {
+                        headers: { token },
+                        timeout: 30000
+                    })
+                    console.log('Razorpay response:', responseRazorpay.data)
                     if (responseRazorpay.data.success) {
                         initPay(responseRazorpay.data.order)
+                    } else {
+                        toast.error(responseRazorpay.data.message || 'Failed to create payment order')
                     }
-
                     break;
+                }
 
                 default:
+                    toast.error('Invalid payment method')
                     break;
             }
 
-
         } catch (error) {
-            console.log(error)
-            toast.error(error.message)
+            console.error('Order submission error:', error)
+            if (error.code === 'ECONNABORTED') {
+                toast.error('Request timed out. Please try again.')
+            } else if (error.response) {
+                toast.error(error.response.data?.message || 'Server error occurred')
+            } else if (error.request) {
+                toast.error('Network error. Please check your connection.')
+            } else {
+                toast.error('An unexpected error occurred')
+            }
         }
     }
 
@@ -161,18 +215,88 @@ const PlaceOrder = () => {
                 <div className='mt-12'>
                     <Title text1={'PAYMENT'} text2={'METHOD'} />
                     {/* --------------- Payment Method Selection ------------- */}
-                    <div className='flex gap-3 flex-col lg:flex-row'>
-                        <div onClick={() => setMethod('stripe')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-                            <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? 'bg-green-400' : ''}`}></p>
-                            <img className='h-5 mx-4' src={assets.stripe_logo} alt="" />
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4'>
+                        {/* Stripe */}
+                        <div
+                            onClick={() => setMethod('stripe')}
+                            className={`flex items-center justify-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md min-h-[60px] ${
+                                method === 'stripe'
+                                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                                    : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                        >
+                            <div className={`w-4 h-4 border-2 rounded-full flex items-center justify-center ${
+                                method === 'stripe' ? 'border-blue-500' : 'border-gray-300'
+                            }`}>
+                                {method === 'stripe' && (
+                                    <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                )}
+                            </div>
+                            <img className='h-8 w-auto object-contain' src={assets.stripe_logo} alt="Stripe" />
                         </div>
-                        <div onClick={() => setMethod('razorpay')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-                            <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'razorpay' ? 'bg-green-400' : ''}`}></p>
-                            <img className='h-5 mx-4' src={assets.razorpay_logo} alt="" />
+
+                        {/* Razorpay */}
+                        <div
+                            onClick={() => setMethod('razorpay')}
+                            className={`flex items-center justify-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md min-h-[60px] ${
+                                method === 'razorpay'
+                                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                                    : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                        >
+                            <div className={`w-4 h-4 border-2 rounded-full flex items-center justify-center ${
+                                method === 'razorpay' ? 'border-blue-500' : 'border-gray-300'
+                            }`}>
+                                {method === 'razorpay' && (
+                                    <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                )}
+                            </div>
+                            <img className='h-8 w-auto object-contain' src={assets.razorpay_logo} alt="Razorpay" />
                         </div>
-                        <div onClick={() => setMethod('cod')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
-                            <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'cod' ? 'bg-green-400' : ''}`}></p>
-                            <p className='text-gray-500 text-sm font-medium mx-4'>CASH ON DELIVERY</p>
+
+                        {/* Google Pay */}
+                        <div
+                            onClick={() => setMethod('gpay')}
+                            className={`flex items-center justify-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md min-h-[60px] ${
+                                method === 'gpay'
+                                    ? 'border-blue-500 bg-blue-50 shadow-md'
+                                    : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                        >
+                            <div className={`w-4 h-4 border-2 rounded-full flex items-center justify-center ${
+                                method === 'gpay' ? 'border-blue-500' : 'border-gray-300'
+                            }`}>
+                                {method === 'gpay' && (
+                                    <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                                )}
+                            </div>
+                            <img className='h-8 w-8 object-contain' src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png" alt="Google Pay" />
+                        </div>
+
+
+
+                        {/* Cash on Delivery - Full Width */}
+                        <div
+                            onClick={() => setMethod('cod')}
+                            className={`flex items-center justify-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md min-h-[60px] col-span-1 sm:col-span-2 lg:col-span-3 ${
+                                method === 'cod'
+                                    ? 'border-green-500 bg-green-50 shadow-md'
+                                    : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                        >
+                            <div className={`w-4 h-4 border-2 rounded-full flex items-center justify-center ${
+                                method === 'cod' ? 'border-green-500' : 'border-gray-300'
+                            }`}>
+                                {method === 'cod' && (
+                                    <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                                )}
+                            </div>
+                            <div className='w-8 h-8 bg-green-600 rounded-full flex items-center justify-center'>
+                                <svg className='w-4 h-4 text-white' fill='currentColor' viewBox='0 0 20 20'>
+                                    <path d='M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z'/>
+                                </svg>
+                            </div>
+                            <span className='text-gray-700 text-sm font-medium'>Cash on Delivery</span>
                         </div>
                     </div>
 

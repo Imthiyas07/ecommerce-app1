@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
+import StarRating from '../components/StarRating';
 
 const Product = () => {
   const { productId } = useParams();
@@ -11,8 +11,6 @@ const Product = () => {
   const [productData, setProductData] = useState(null);
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
-  const [reviews, setReviews] = useState([]);
-  const [newReview, setNewReview] = useState('');
 
   useEffect(() => {
     const product = products.find(item => item._id === productId);
@@ -26,12 +24,18 @@ const Product = () => {
     navigate('/cart', { state: { product: productData, size } });
   };
 
-  const handleReviewSubmit = () => {
-    if (newReview.trim()) {
-      setReviews([...reviews, newReview]);
-      setNewReview('');
+  const getStockStatus = (product) => {
+    if (!product.stock || product.stock === 0) {
+      return { status: 'out', text: 'Out of Stock', color: 'text-red-600', bgColor: 'bg-red-100' }
+    } else if (product.stock <= (product.minStock || 5)) {
+      return { status: 'low', text: 'Low Stock', color: 'text-orange-600', bgColor: 'bg-orange-100' }
+    } else {
+      return { status: 'good', text: 'In Stock', color: 'text-green-600', bgColor: 'bg-green-100' }
     }
   };
+
+  const stockStatus = productData ? getStockStatus(productData) : null;
+  const isOutOfStock = stockStatus?.status === 'out';
 
   return productData ? (
     <div className='border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100'>
@@ -48,12 +52,30 @@ const Product = () => {
         </div>
         <div className='flex-1'>
           <h1 className='font-medium text-2xl mt-2'>{productData.name}</h1>
-          <div className='flex items-center gap-1 mt-2'>
-            {[...Array(4)].map((_, i) => (<img key={i} src={assets.star_icon} alt='' className='w-3 5' />))}
-            <img src={assets.star_dull_icon} alt='' className='w-3 5' />
-            <p className='pl-2'>(122)</p>
+          <div className='flex items-center gap-2 mt-2'>
+            <StarRating rating={productData.rating || 0} size="text-lg" />
+            <p className='text-sm text-gray-600' onClick={() => navigate(`/reviews/${productId}`)}>
+            Reviews ({productData.reviewCount || 0})
+            </p>
           </div>
           <p className='mt-5 text-3xl font-medium'>{currency}{productData.price}</p>
+
+          {/* Stock Status Display */}
+          <div className='mt-4'>
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${stockStatus.bgColor} ${stockStatus.color} border`}>
+              <span className={`w-2 h-2 rounded-full mr-2 ${
+                stockStatus.status === 'out' ? 'bg-red-500' :
+                stockStatus.status === 'low' ? 'bg-orange-500' : 'bg-green-500'
+              }`}></span>
+              {stockStatus.text}
+              {productData.stock !== undefined && (
+                <span className='ml-2 font-normal'>
+                  ({productData.stock} available)
+                </span>
+              )}
+            </span>
+          </div>
+
           <p className='mt-5 text-gray-500 md:w-4/5'>{productData.description}</p>
           <div className='flex flex-col gap-4 my-8'>
             <p>Select Size</p>
@@ -64,8 +86,28 @@ const Product = () => {
             </div>
           </div>
           <div className='flex gap-4'>
-            <button onClick={() => addToCart(productData._id, size)} className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700'>ADD TO CART</button>
-            <button onClick={handleBuyNow} className='bg-pink-500 text-white px-8 py-3 text-sm active:bg-pink-700'>BUY NOW</button>
+            <button
+              onClick={() => addToCart(productData._id, size)}
+              disabled={isOutOfStock}
+              className={`px-8 py-3 text-sm ${
+                isOutOfStock
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-black text-white active:bg-gray-700 hover:bg-gray-800'
+              }`}
+            >
+              {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
+            </button>
+            <button
+              onClick={handleBuyNow}
+              disabled={isOutOfStock}
+              className={`px-8 py-3 text-sm ${
+                isOutOfStock
+                  ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                  : 'bg-pink-500 text-white active:bg-pink-700 hover:bg-pink-600'
+              }`}
+            >
+              {isOutOfStock ? 'UNAVAILABLE' : 'BUY NOW'}
+            </button>
           </div>
           <hr className='mt-8 sm:w-4/5' />
           <div className='text-sm text-gray-500 mt-5 flex flex-col gap-1'>
@@ -75,27 +117,7 @@ const Product = () => {
           </div>
         </div>
       </div>
-      <div className='mt-20'>
-        <div className='flex'>
-          <b className='border px-5 py-3 text-sm'>Description</b>
-          <p className='border px-5 py-3 text-sm'>Reviews ({reviews.length})</p>
-        </div>
-        <div className='border px-6 py-6 text-sm text-gray-500'>
-          <p>{productData.description}</p>
-        </div>
-        <div className='border px-6 py-6 text-sm'>
-          <h3 className='text-lg font-bold'>Customer Reviews</h3>
-          {reviews.length ? (
-            <ul className='mt-2'>
-              {reviews.map((review, index) => (<li key={index} className='border-b py-2'>{review}</li>))}
-            </ul>
-          ) : (<p className='text-gray-500 mt-2'>No reviews yet.</p>)}
-          <div className='mt-4'>
-            <textarea className='w-full border p-2' value={newReview} onChange={(e) => setNewReview(e.target.value)} placeholder='Write a review...'></textarea>
-            <button onClick={handleReviewSubmit} className='bg-gray-800 text-white px-6 py-2 mt-2'>Submit Review</button>
-          </div>
-        </div>
-      </div>
+      
       <RelatedProducts category={productData.category} subCategory={productData.subCategory} />
     </div>
   ) : (<div className='opacity-0'></div>);

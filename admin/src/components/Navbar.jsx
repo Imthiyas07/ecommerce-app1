@@ -1,4 +1,4 @@
-import React from 'react'
+import PropTypes from 'prop-types'
 import {assets} from '../assets/assets'
 
 const Navbar = ({setToken}) => {
@@ -8,6 +8,10 @@ const Navbar = ({setToken}) => {
         <button onClick={()=>setToken('')} className='bg-gray-600 text-white px-5 py-2 sm:px-7 sm:py-2 rounded-full text-xs sm:text-sm'>Logout</button>
     </div>
   )
+}
+
+Navbar.propTypes = {
+  setToken: PropTypes.func.isRequired,
 }
 
 export default Navbar

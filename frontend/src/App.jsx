@@ -1,21 +1,24 @@
-import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Collection from './pages/Collection'
 import About from './pages/About'
 import Contact from './pages/Contact'
 import Product from './pages/Product'
+import Reviews from './pages/Reviews'
 import Cart from './pages/Cart'
 import Login from './pages/Login'
 import PlaceOrder from './pages/PlaceOrder'
 import Orders from './pages/Orders'
+import Profile from './pages/Profile'
+import ForgotPassword from './pages/ForgotPassword'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Verify from './pages/Verify';
-import PrivacyPolicy from './pages/PrivacyPolicy'; // Adjust path if needed
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Blocked from './pages/Blocked';
 
 
 const App = () => {
@@ -30,12 +33,16 @@ const App = () => {
         <Route path='/about' element={<About />} />
         <Route path='/contact' element={<Contact />} />
         <Route path='/product/:productId' element={<Product />} />
+        <Route path='/reviews/:productId' element={<Reviews />} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/place-order' element={<PlaceOrder />} />
         <Route path='/orders' element={<Orders />} />
+        <Route path='/profile' element={<Profile />} />
         <Route path='/verify' element={<Verify />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/blocked" element={<Blocked />} />
       </Routes>
       <Footer />
     </div>
