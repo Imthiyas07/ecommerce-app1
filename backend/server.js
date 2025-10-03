@@ -70,29 +70,71 @@ const allowedOrigins = [
     process.env.ADMIN_URL,       // Admin URL if set
 ].filter(Boolean); // Remove undefined values
 
+console.log('🔧 CORS Configuration:');
+console.log('✅ Allowed origins:', allowedOrigins);
+console.log('🌐 Frontend URL env:', process.env.FRONTEND_URL);
+console.log('🛡️ Admin URL env:', process.env.ADMIN_URL);
+
 const corsOptions = {
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
+        if (!origin) {
+            console.log('🌐 Allowing request with no origin (likely mobile app or direct API call)');
+            return callback(null, true);
+        }
 
-        if (allowedOrigins.includes(origin)) {
+        // Check if origin is allowed
+        const isAllowed = allowedOrigins.some(allowedOrigin => {
+            // Handle exact matches and wildcard patterns
+            if (allowedOrigin === origin) return true;
+            // Allow subdomains for Vercel deployments
+            if (allowedOrigin.includes('vercel.app') && origin.includes('vercel.app')) return true;
+            return false;
+        });
+
+        if (isAllowed) {
+            console.log('✅ CORS allowed for origin:', origin);
             callback(null, true);
         } else {
             console.log('❌ CORS blocked origin:', origin);
-            console.log('✅ Allowed origins:', allowedOrigins);
-            callback(new Error('Not allowed by CORS'));
+            console.log('📋 Allowed origins:', allowedOrigins);
+            // For development, allow all Vercel origins
+            if (origin && origin.includes('vercel.app')) {
+                console.log('🔄 Allowing Vercel origin for development');
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'token', 'Accept', 'Origin', 'X-Requested-With'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'token',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'X-CSRF-Token',
+        'X-Auth-Token'
+    ],
     credentials: true,
-    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+    optionsSuccessStatus: 200, // Some legacy browsers choke on 204
+    preflightContinue: false,
+    maxAge: 86400 // Cache preflight for 24 hours
 }
 
 app.use(cors(corsOptions))
 
-// Handle preflight requests
-app.options('*', cors(corsOptions))
+// Handle preflight requests explicitly
+app.options('*', (req, res) => {
+    console.log('🔄 Handling preflight request for:', req.method, req.path, 'from:', req.headers.origin);
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, token, Accept, Origin, X-Requested-With');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.sendStatus(200);
+});
 
 // Body parsing
 app.use(express.json({ limit: '10mb' })) // Limit payload size

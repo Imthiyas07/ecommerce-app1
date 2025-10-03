@@ -11,7 +11,7 @@ const ShopContextProvider = (props) => {
 
     const currency = currencyConstant;
     const delivery_fee = 10;
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+    const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || 'http://localhost:4000'
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
