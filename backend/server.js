@@ -60,13 +60,39 @@ app.use(helmet())
 // })
 // app.use(limiter)
 
-// CORS configuration
+// CORS configuration - Allow multiple origins including Vercel deployments
+const allowedOrigins = [
+    'http://localhost:5173',     // Local frontend
+    'http://localhost:5174',     // Local admin
+    'https://ecommerce-app1-three.vercel.app',  // Vercel frontend
+    'https://ecommerce-app1-ten.vercel.app',     // Vercel admin
+    process.env.FRONTEND_URL,    // Environment variable
+    process.env.ADMIN_URL,       // Admin URL if set
+].filter(Boolean); // Remove undefined values
+
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174','https://ecommerce-app1-three.vercel.app/','https://ecommerce-app1-ten.vercel.app/'], // Allow frontend and admin origins
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'token'],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.log('❌ CORS blocked origin:', origin);
+            console.log('✅ Allowed origins:', allowedOrigins);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'token', 'Accept', 'Origin', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }
+
 app.use(cors(corsOptions))
+
+// Handle preflight requests
+app.options('*', cors(corsOptions))
 
 // Body parsing
 app.use(express.json({ limit: '10mb' })) // Limit payload size
