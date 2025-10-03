@@ -62,7 +62,7 @@ app.use(helmet())
 
 // CORS configuration
 const corsOptions = {
-    origin: ['http://localhost:5173', 'http://localhost:5174'], // Allow frontend and admin origins
+    origin: ['http://localhost:5173', 'http://localhost:5174','https://ecommerce-app1-three.vercel.app/','https://ecommerce-app1-ten.vercel.app/'], // Allow frontend and admin origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'token'],
 }
