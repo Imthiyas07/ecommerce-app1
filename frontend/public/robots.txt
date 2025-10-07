@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Block admin pages from search engines
+Disallow: /admin
+Disallow: /admin/*
+
+# Block login and sensitive pages
+Disallow: /login
+Disallow: /forgot-password
+Disallow: /blocked
+
+# Allow important pages
+Allow: /
+Allow: /collection
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms
+
+# Sitemap
+Sitemap: https://ecommerce-frontend-v2-delta.vercel.app/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

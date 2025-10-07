@@ -4,11 +4,81 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Shop from Home</title>
+
+    <!-- Primary Meta Tags -->
+    <title>Shop from Home - Premium Fashion & Lifestyle E-commerce Store</title>
+    <meta name="title" content="Shop from Home - Premium Fashion & Lifestyle E-commerce Store" />
+    <meta name="description" content="Discover premium fashion, lifestyle products, and accessories at Shop from Home. Enjoy secure online shopping with fast delivery, easy returns, and exceptional customer service." />
+    <meta name="keywords" content="fashion, clothing, lifestyle, e-commerce, online shopping, premium products, fashion accessories, secure checkout, fast delivery" />
+    <meta name="author" content="Shop from Home" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ecommerce-frontend-v2-delta.vercel.app/" />
+    <meta property="og:title" content="Shop from Home - Premium Fashion & Lifestyle E-commerce Store" />
+    <meta property="og:description" content="Discover premium fashion, lifestyle products, and accessories at Shop from Home. Enjoy secure online shopping with fast delivery, easy returns, and exceptional customer service." />
+    <meta property="og:image" content="https://ecommerce-frontend-v2-delta.vercel.app/og-image.jpg" />
+    <meta property="og:site_name" content="Shop from Home" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://ecommerce-frontend-v2-delta.vercel.app/" />
+    <meta property="twitter:title" content="Shop from Home - Premium Fashion & Lifestyle E-commerce Store" />
+    <meta property="twitter:description" content="Discover premium fashion, lifestyle products, and accessories at Shop from Home. Enjoy secure online shopping with fast delivery, easy returns, and exceptional customer service." />
+    <meta property="twitter:image" content="https://ecommerce-frontend-v2-delta.vercel.app/og-image.jpg" />
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="msapplication-TileColor" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Shop from Home" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ecommerce-frontend-v2-delta.vercel.app/" />
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.razorpay.com" />
+    <link rel="preconnect" href="https://checkout.razorpay.com" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prata&display=swap" rel="stylesheet" />
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Shop from Home",
+      "url": "https://ecommerce-frontend-v2-delta.vercel.app/",
+      "logo": "https://ecommerce-frontend-v2-delta.vercel.app/logo.png",
+      "description": "Premium fashion and lifestyle e-commerce store offering secure online shopping with fast delivery and easy returns.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+91-9876543210",
+        "contactType": "customer service",
+        "availableLanguage": "English"
+      },
+      "sameAs": [
+        "https://www.facebook.com/shopfromhome",
+        "https://www.instagram.com/shopfromhome",
+        "https://www.twitter.com/shopfromhome"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"> </script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
   </body>
 </html>
