@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://ecommerce-frontend-v2-delta.vercel.app/og-image.jpg</image:loc>
+      <image:title>Shop from Home - Premium Fashion & Lifestyle Store</image:title>
+      <image:caption>Discover premium fashion and lifestyle products</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Main Pages -->
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/collection</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/about</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/contact</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/login</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Product Categories (Dynamic - Update with real products) -->
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/collection/men</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/collection/women</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/collection/kids</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Support Pages -->
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/privacy-policy</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/terms</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/shipping</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/returns</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/size-guide</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/faq</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Blog/Articles (Add when blog is implemented) -->
+  <!--
+  <url>
+    <loc>https://ecommerce-frontend-v2-delta.vercel.app/blog</loc>
+    <lastmod>2025-01-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  -->
+
+</urlset>

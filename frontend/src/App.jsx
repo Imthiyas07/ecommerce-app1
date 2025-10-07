@@ -11,6 +11,8 @@ import PlaceOrder from './pages/PlaceOrder'
 import Orders from './pages/Orders'
 import Profile from './pages/Profile'
 import ForgotPassword from './pages/ForgotPassword'
+import Blog from './pages/Blog'
+import FAQ from './pages/FAQ'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import SearchBar from './components/SearchBar'
@@ -43,6 +45,8 @@ const App = () => {
         <Route path='/verify' element={<Verify />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/blocked" element={<Blocked />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/faq" element={<FAQ />} />
       </Routes>
       <Footer />
     </div>
