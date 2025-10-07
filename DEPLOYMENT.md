@@ -11,6 +11,73 @@ This e-commerce application is designed to handle **millions of users** with opt
 - **File Storage**: Cloudinary
 - **Payment**: Razorpay & Stripe
 
+## 🏠 Local Development Setup
+
+### Prerequisites
+- Node.js >= 18.0.0
+- MongoDB Atlas account
+- Git
+
+### Local Setup Steps
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Imthiyas07/ecommerce-app1.git
+   cd ecommerce-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Backend
+   cd backend && npm install
+
+   # Frontend
+   cd ../frontend && npm install
+
+   # Admin
+   cd ../admin && npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   # Copy local environment files
+   cp frontend/.env.local frontend/.env
+   cp admin/.env.local admin/.env
+
+   # Backend .env is already configured for local development
+   ```
+
+4. **Start Development Servers**
+   ```bash
+   # Terminal 1: Backend
+   cd backend && npm run server
+
+   # Terminal 2: Frontend
+   cd frontend && npm run dev
+
+   # Terminal 3: Admin
+   cd admin && npm run dev
+   ```
+
+5. **Access Applications**
+   - Frontend: http://localhost:5173
+   - Admin: http://localhost:5174
+   - Backend API: http://localhost:4000
+
+### Switching Between Local and Production
+
+**For Local Development:**
+```bash
+# Use .env.local files (already configured)
+cp frontend/.env.local frontend/.env
+cp admin/.env.local admin/.env
+```
+
+**For Production Deployment:**
+```bash
+# Use production .env files (already configured)
+# Files are set for Vercel deployment
+```
+
 ## 🚀 Deployment Steps
 
 ### 1. Backend Deployment (Render)
