@@ -1,3 +1,18 @@
-nohup: ignoring input
+
+> backend@1.0.0 start
+> node server.js
+
 DB Connected
+✅ Database connected successfully
+✅ Cloudinary connected successfully
+🔧 CORS Configuration:
+✅ Allowed origins: [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://ecommerce-app1-three.vercel.app',
+  'https://ecommerce-app1-ten.vercel.app',
+  'http://localhost:5173'
+]
+🌐 Frontend URL env: http://localhost:5173
+🛡️ Admin URL env: undefined
 Server started on PORT : 4000

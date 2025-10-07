@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: ecommerce-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET_KEY
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_APP_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        value: https://ecommerce-app1-three.vercel.app
+      - key: ADMIN_URL
+        value: https://ecommerce-app1-ten.vercel.app
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false

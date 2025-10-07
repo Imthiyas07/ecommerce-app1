@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
-import { currency as currencyConstant } from '../../../admin/src/constants'
+const currency = '₹'
 
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
-
-    const currency = currencyConstant;
     const delivery_fee = 10;
     const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace(/\/$/, '') || 'http://localhost:4000'
     const [search, setSearch] = useState('');

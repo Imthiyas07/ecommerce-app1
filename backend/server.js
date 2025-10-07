@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
+import compression from 'compression'
 import winston from 'winston'
 import 'dotenv/config'
 import connectDB from './config/mongodb.js'
@@ -50,15 +51,50 @@ try {
 }
 
 // Security middlewares
-app.use(helmet())
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "http:"],
+            scriptSrc: ["'self'", "'unsafe-inline'"],
+        },
+    },
+}))
 
-// Rate limiting disabled for development
-// const limiter = rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes
-//     max: 1000, // limit each IP to 1000 requests per windowMs
-//     message: 'Too many requests from this IP, please try again later.',
-// })
-// app.use(limiter)
+// Compression middleware for better performance
+app.use(compression({
+    level: 6, // Good balance between speed and compression
+    threshold: 1024, // Only compress responses larger than 1KB
+}))
+
+// Rate limiting for production (million users)
+const isProduction = process.env.NODE_ENV === 'production'
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: isProduction ? 1000 : 10000, // Stricter in production
+    message: {
+        success: false,
+        message: 'Too many requests from this IP, please try again later.',
+        retryAfter: '15 minutes'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Skip rate limiting for health checks
+    skip: (req) => req.path === '/health' || req.path === '/test',
+})
+
+// Apply rate limiting
+if (isProduction) {
+    app.use('/api/', limiter) // Only rate limit API routes in production
+} else {
+    app.use('/api/', rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 10000, // More lenient in development
+        message: 'Too many requests from this IP, please try again later.',
+    }))
+}
 
 // CORS configuration - Allow multiple origins including Vercel deployments
 const allowedOrigins = [
@@ -146,6 +182,30 @@ app.use('/api/cart',cartRouter)
 app.use('/api/order',orderRouter)
 app.use('/api/wishlist',wishlistRouter)
 
+// Health check endpoint for load balancers and monitoring
+app.get('/health', (req, res) => {
+    const healthCheck = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        version: process.version,
+        environment: process.env.NODE_ENV || 'development',
+        database: 'unknown'
+    }
+
+    // Check database connection
+    try {
+        const mongoose = require('mongoose')
+        healthCheck.database = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    } catch (error) {
+        healthCheck.database = 'error'
+    }
+
+    const statusCode = healthCheck.database === 'connected' ? 200 : 503
+    res.status(statusCode).json(healthCheck)
+})
+
 app.get('/',(req,res)=>{
     res.send("API Working")
 })
@@ -155,7 +215,9 @@ app.get('/test',(req,res)=>{
     res.json({
         message: "Test endpoint working",
         timestamp: new Date().toISOString(),
-        mongodb: process.env.MONGODB_URI ? "Configured" : "Not configured"
+        mongodb: process.env.MONGODB_URI ? "Configured" : "Not configured",
+        environment: process.env.NODE_ENV || 'development',
+        version: process.version
     })
 })
 
