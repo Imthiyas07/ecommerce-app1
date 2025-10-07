@@ -138,6 +138,13 @@ app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
+    // Permissions Policy to allow Razorpay features
+    res.setHeader('Permissions-Policy',
+        'otp-credentials=(self "https://api.razorpay.com" "https://checkout.razorpay.com"), ' +
+        'payment=(self "https://api.razorpay.com" "https://checkout.razorpay.com"), ' +
+        'clipboard-write=(self "https://api.razorpay.com" "https://checkout.razorpay.com")'
+    );
+
     next();
 });
 
