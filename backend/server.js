@@ -55,13 +55,91 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https:", "http:"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
+            styleSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://fonts.googleapis.com",
+                "https://api.razorpay.com",
+                "https://checkout.razorpay.com"
+            ],
+            fontSrc: [
+                "'self'",
+                "https://fonts.gstatic.com",
+                "https://api.razorpay.com"
+            ],
+            imgSrc: [
+                "'self'",
+                "data:",
+                "https:",
+                "http:",
+                "https://api.razorpay.com",
+                "https://checkout.razorpay.com"
+            ],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "https://api.razorpay.com",
+                "https://checkout.razorpay.com",
+                "https://maps.googleapis.com",
+                "https://www.google.com",
+                "https://www.gstatic.com"
+            ],
+            connectSrc: [
+                "'self'",
+                "https://api.razorpay.com",
+                "https://checkout.razorpay.com",
+                "https://maps.googleapis.com",
+                "https://www.google.com"
+            ],
+            frameSrc: [
+                "'self'",
+                "https://api.razorpay.com",
+                "https://checkout.razorpay.com",
+                "https://www.google.com",
+                "https://maps.google.com"
+            ],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: [],
         },
     },
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Additional headers to fix browser warnings
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    },
+    // Disable some restrictive headers that cause issues with third-party services
+    contentSecurityPolicy: false, // We'll handle CSP manually
+    crossOriginOpenerPolicy: false,
+    originAgentCluster: false
 }))
+
+// Manual CSP headers to allow third-party services
+app.use((req, res, next) => {
+    res.setHeader(
+        'Content-Security-Policy',
+        [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' https://api.razorpay.com https://checkout.razorpay.com https://maps.googleapis.com https://www.google.com https://www.gstatic.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://api.razorpay.com https://checkout.razorpay.com",
+            "img-src 'self' data: https: http: https://api.razorpay.com https://checkout.razorpay.com",
+            "font-src 'self' https://fonts.gstatic.com https://api.razorpay.com",
+            "connect-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://maps.googleapis.com https://www.google.com",
+            "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.google.com https://maps.google.com",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'"
+        ].join('; ')
+    );
+
+    // Additional headers to fix cookie warnings
+    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+
+    next();
+});
 
 // Compression middleware for better performance
 app.use(compression({
