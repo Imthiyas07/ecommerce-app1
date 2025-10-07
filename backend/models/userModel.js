@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    phone: { type: String, sparse: true }, // Optional phone for OTP login
     password: { type: String, required: true },
     cartData: { type: Object, default: {} },
     wishlistItems: [{ type: mongoose.Schema.Types.ObjectId, ref: 'product' }],
@@ -10,6 +11,8 @@ const userSchema = new mongoose.Schema({
     resetOTP: { type: String },
     resetOTPExpiry: { type: Date },
     resetOTPVerified: { type: Boolean, default: false },
+    phoneOTP: { type: String }, // OTP for phone verification
+    phoneOTPExpiry: { type: Date },
     profile: {
         phone: { type: String },
         location: { type: String },

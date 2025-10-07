@@ -1,5 +1,5 @@
 import express from 'express';
-import { loginUser, registerUser, adminLogin, getAllUsers, updateUser, deleteUser, toggleUserBlock, changeUserPassword, getUserDetails, getUserProfile, updateUserProfile, forgotPassword, verifyOTP, resetPassword } from '../controllers/userController.js';
+import { loginUser, registerUser, adminLogin, getAllUsers, updateUser, deleteUser, toggleUserBlock, changeUserPassword, getUserDetails, getUserProfile, updateUserProfile, forgotPassword, verifyOTP, resetPassword, googleAuth, sendPhoneOTP, verifyPhoneOTP } from '../controllers/userController.js';
 import adminAuth from '../middleware/adminAuth.js';
 import authUser from '../middleware/auth.js';
 
@@ -13,6 +13,11 @@ userRouter.post('/verify-otp', verifyOTP)
 userRouter.post('/reset-password', resetPassword)
 userRouter.post('/profile', authUser, getUserProfile)
 userRouter.post('/update-profile', authUser, updateUserProfile)
+
+// Social login routes
+userRouter.get('/auth/google', googleAuth)
+userRouter.post('/send-phone-otp', sendPhoneOTP)
+userRouter.post('/verify-phone-otp', verifyPhoneOTP)
 
 // Admin only routes
 userRouter.get('/list', adminAuth, getAllUsers)

@@ -70,12 +70,20 @@ const loginUser = async (req, res) => {
 const registerUser = async (req, res) => {
     try {
 
-        const { name, email, password } = req.body;
+        const { name, email, password, phone } = req.body;
 
         // checking user already exists or not
         const exists = await userModel.findOne({ email });
         if (exists) {
             return res.json({ success: false, message: "User already exists" })
+        }
+
+        // Check if phone is already registered (if provided)
+        if (phone) {
+            const phoneExists = await userModel.findOne({ phone });
+            if (phoneExists) {
+                return res.json({ success: false, message: "Phone number already registered" })
+            }
         }
 
         // validating email format & strong password
@@ -86,6 +94,14 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a strong password" })
         }
 
+        // Validate phone format if provided
+        if (phone) {
+            const phoneRegex = /^\+?[1-9]\d{9,14}$/;
+            if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+                return res.json({ success: false, message: "Please enter a valid phone number" })
+            }
+        }
+
         // hashing user password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
@@ -93,6 +109,7 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({
             name,
             email,
+            phone: phone || undefined, // Optional phone field
             password: hashedPassword
         })
 
@@ -546,4 +563,116 @@ const resetPassword = async (req, res) => {
     }
 };
 
-export { loginUser, registerUser, adminLogin, getAllUsers, updateUser, deleteUser, toggleUserBlock, changeUserPassword, getUserDetails, getUserProfile, updateUserProfile, forgotPassword, verifyOTP, resetPassword }
+// Google OAuth login (placeholder - requires Google OAuth setup)
+const googleAuth = async (req, res) => {
+    try {
+        // This is a placeholder for Google OAuth implementation
+        // In production, you would use passport-google-oauth20 or similar
+        res.json({
+            success: false,
+            message: "Google authentication not yet implemented. Please use email/password login.",
+            note: "To implement Google OAuth, install passport-google-oauth20 and configure Google Console"
+        });
+    } catch (error) {
+        logger.error('Google auth error:', error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Send OTP to phone (placeholder - requires SMS service like Twilio)
+const sendPhoneOTP = async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        if (!phone) {
+            return res.json({ success: false, message: "Phone number is required" });
+        }
+
+        // Validate phone number format (basic validation)
+        const phoneRegex = /^\+?[1-9]\d{9,14}$/;
+        if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+            return res.json({ success: false, message: "Please enter a valid phone number" });
+        }
+
+        // Check if user exists with this phone
+        const existingUser = await userModel.findOne({ phone });
+        if (!existingUser) {
+            return res.json({ success: false, message: "Phone number not registered. Please sign up first." });
+        }
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Store OTP in user document (in production, use Redis or similar for better security)
+        existingUser.phoneOTP = otp;
+        existingUser.phoneOTPExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+        await existingUser.save();
+
+        // TODO: Integrate with SMS service like Twilio, AWS SNS, etc.
+        // For now, we'll log the OTP for testing
+        console.log(`📱 OTP for ${phone}: ${otp} (use this for testing - SMS integration needed)`);
+
+        // In production, send SMS here
+        // const smsResult = await sendSMS(phone, `Your OTP is: ${otp}`);
+
+        res.json({
+            success: true,
+            message: "OTP sent to your phone successfully",
+            note: "Check console for OTP (SMS integration required for production)"
+        });
+    } catch (error) {
+        logger.error('Send phone OTP error:', error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Verify phone OTP
+const verifyPhoneOTP = async (req, res) => {
+    try {
+        const { phone, otp } = req.body;
+
+        if (!phone || !otp) {
+            return res.json({ success: false, message: "Phone number and OTP are required" });
+        }
+
+        const user = await userModel.findOne({ phone });
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        // Check if user is blocked
+        if (user.isBlocked) {
+            return res.json({ success: false, message: "Your account has been blocked by admin" });
+        }
+
+        if (!user.phoneOTP || !user.phoneOTPExpiry) {
+            return res.json({ success: false, message: "No OTP request found" });
+        }
+
+        if (Date.now() > user.phoneOTPExpiry) {
+            return res.json({ success: false, message: "OTP has expired" });
+        }
+
+        if (user.phoneOTP !== otp) {
+            return res.json({ success: false, message: "Invalid OTP" });
+        }
+
+        // OTP is valid, clear OTP fields and create token
+        user.phoneOTP = undefined;
+        user.phoneOTPExpiry = undefined;
+        await user.save();
+
+        const token = createToken(user._id);
+
+        res.json({
+            success: true,
+            token,
+            message: "Login successful"
+        });
+    } catch (error) {
+        logger.error('Verify phone OTP error:', error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export { loginUser, registerUser, adminLogin, getAllUsers, updateUser, deleteUser, toggleUserBlock, changeUserPassword, getUserDetails, getUserProfile, updateUserProfile, forgotPassword, verifyOTP, resetPassword, googleAuth, sendPhoneOTP, verifyPhoneOTP }
